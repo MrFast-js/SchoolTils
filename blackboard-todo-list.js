@@ -1,4 +1,4 @@
-clear()
+
 function createMenu() {
     const toDoList = document.getElementById('toDoList');
     if (!toDoList) {
