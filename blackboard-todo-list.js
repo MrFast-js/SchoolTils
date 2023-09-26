@@ -34,21 +34,37 @@ async function fetchAssignments() {
 
 function renderToDoList(assignments) {
     const tdl = document.getElementById('toDoList');
-    tdl.innerHTML = `<h1 style='font-family: Open Sans,sans-serif;text-align:center;font-weight:600;'>To Do List</h1>
-    <h4 style='text-align:center;>Upcoming Assignments<h4>`;
-    
+    tdl.innerHTML = `<h1 style='font-family: Open Sans,sans-serif;text-align:center;font-weight:600;'>To Do List</h1>`;
+    if(localStorage.completedAssignments?.length==0) {
+        localStorage.completedAssignments=JSON.stringify([]);
+    }
     assignments.forEach(assignment => {
         const className = assignment.class.name.split(" - ")[1];
         const assName = assignment.assignmentName;
         const linkToClass = assignment.class.link;
-
+        const checked = localStorage.completedAssignments.includes(assName)
         tdl.innerHTML += `
             <input type='checkbox' id='${assName}' value='test'>
             <label for='${assName}' style='max-width:90%;'><a href='${linkToClass}'>${assName}</a></label><br><br>
-            
         `;
+        document.getElementById(assName).checked = checked;
+        setTimeout(()=>{
+            document.getElementById(assName).checked = checked;
+            document.getElementById(assName).oninput = () => {
+                let completed = JSON.parse(localStorage.completedAssignments);
+                
+                if(document.getElementById(assName).checked) {
+                    completed.push(assName)
+                } else {
+                    completed.splice(completed.indexOf(assName),1)
+                }
+                
+                localStorage.completedAssignments=JSON.stringify(completed);
+            }
+        },50)
         
-        console.log(`You need to complete ${assignment.assignmentName} for ${className}`);
+        
+        console.log(`You need to complete ${assignment.assignmentName} for ${className} its due ${assignment.dueDate}`);
     });
 }
 
@@ -59,7 +75,7 @@ async function main() {
     // Filter assignments (less than 20 hours from due date)
     const filteredAssignments = assignments.filter(assignment => {
         const hours = (assignment.dueDate - new Date()) / 1000 / 60 / 60;
-        return hours < 20 && hours>0;
+        return hours < 20 && hours > 0;
     });
     
     renderToDoList(filteredAssignments);
