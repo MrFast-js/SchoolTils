@@ -59,7 +59,7 @@ async function main() {
     // Filter assignments (less than 20 hours from due date)
     const filteredAssignments = assignments.filter(assignment => {
         const hours = (assignment.dueDate - new Date()) / 1000 / 60 / 60;
-        return hours < 20;
+        return hours < 20 && hours>0;
     });
     
     renderToDoList(filteredAssignments);
