@@ -1,3 +1,7 @@
+/*
+ This will put buttons under blackboard questions that you can click to google, or copy the question
+*/
+
 let questions = document.getElementsByClassName('field');
 
 function googleIt(e) {
