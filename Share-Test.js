@@ -13,3 +13,9 @@ document.querySelectorAll('tbody').forEach((e)=>{
         e.removeChild(c)
     }
 })
+let arr = document.getElementsByClassName('item clearfix contentListRightOffset');
+let toRemove = [];
+for(el of arr) toRemove.push(el);
+for(el of toRemove) el.remove();
+let arr2 = document.getElementsByClassName('clearfix liItem read');
+for(el of arr2) el.style.padding='0'
