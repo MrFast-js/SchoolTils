@@ -1,3 +1,7 @@
+/*
+This will remove all of the extra hiber jiber so you can easily screenshot answers and show to friend
+*/
+
 document.querySelectorAll('tbody').forEach((e)=>{
     if(e.parentElement.parentElement.classList.contains('details')) return;
     let i=0;
