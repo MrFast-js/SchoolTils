@@ -3,6 +3,9 @@ let questions = document.getElementsByClassName('field');
 function googleIt(e) {
     window.open(`https://www.google.com/search?q=${e}`);
 }
+function chatGPT(e) {
+    navigator.clipboard.writeText(e)
+}
 
 for (q of questions) {
     let question = q.children[1].children[0].children[0].innerHTML;
