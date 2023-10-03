@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Blackboard ToDo List Enhancer
+// @name         Blackboard To-Do List
 // @namespace    http://yourwebsite.com
 // @version      1.0
-// @description  Enhance Blackboard's ToDo List
+// @description  Create a To-Do List for Blackboard
 // @author       Your Name
 // @match        https://ccccblackboard.blackboard.com/ultra/course*
 // @grant        none
