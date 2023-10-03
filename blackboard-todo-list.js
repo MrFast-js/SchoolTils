@@ -65,9 +65,13 @@ async function renderToDoList(assignments) {
       const className = assignment.class.name.split("_")[0];
       const assName = assignment.assignmentName;
       const linkToClass = assignment.assignmentLink;
-      const checked = localStorage.completedAssignments.includes(assName)
+      let checked = localStorage.completedAssignments.includes(assName)
       const dueTommorrow = (assignment.dueDate - new Date()) / 1000 / 60 / 60 > 24;
-      let grade = await getAssignmentGrade(assignment.class.id, assignment.assignmentId);
+      const grade = await getAssignmentGrade(assignment.class.id, assignment.assignmentId);
+      const submitted = grade.toString().includes("Submitted");
+      if(!checked && submitted) {
+        checked = true;
+      }
 
       if (!addedTomorrowSpacer && dueTommorrow) {
           const tomorrowSpacer = document.createElement('h4');
@@ -164,7 +168,7 @@ function calculateTimeDifference(startDate, endDate) {
 const badgeCss = 'position:absolute;right:2%;display: inline-block;width:74px;text-align:center;border-radius:5px;padding:2px;font-size:90%;'
 async function getAssignmentGrade(classId, assId) {
     let ungraded = `<span style='${badgeCss}background:#d1d1d1;color:#555;'>Incomplete</span>`;
-    let submittedText = `<span style='${badgeCss}background:#d1d1d1;color:#555;'>Submitted</span>`;
+    let submittedText = `<span style='${badgeCss}background:#95deb0;color:black;'>Submitted</span>`;
 
     try {
         const response = await fetch(`https://ccccblackboard.blackboard.com/learn/api/v1/courses/${classId}/gradebook/grades?limit=100&userId=${window.__initialContext.user.id}`);
@@ -210,7 +214,7 @@ async function main() {
 
     const sortedAssignments = assignments.filter(assignment => {
         const hours = (assignment.dueDate - new Date()) / 1000 / 60 / 60;
-        return hours < 48 && hours > -24;
+        return hours < 48 && hours > 0;
     }).sort((a, b) => (a.dueDate - b.dueDate) / 1000 / 60 / 60);
 
     renderToDoList(sortedAssignments);
