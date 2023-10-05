@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Blackboard To-Do List
-// @namespace    http://yourwebsite.com
 // @version      1.0
 // @description  Create a To-Do List for Blackboard
-// @author       Your Name
+// @author       MrFast
 // @match        https://ccccblackboard.blackboard.com/ultra/course*
 // @grant        none
 // ==/UserScript==
+let debug = true;
 
 console.log('%cLoaded Brad\'s To Do List!', 'color: yellow; font-weight: bold;font-size:400%;');
 function createMenu() {
@@ -24,7 +24,6 @@ function createMenu() {
     const tdl = document.getElementById('toDoList');
     tdl.style.cssText = 'position:absolute;left:79%;top:20%;background:white;border-radius:4px;border:1px solid #cdcdcd;width:4%;height:70%;padding: 5px;overflow-y:scroll;overflow-x:hidden;';
 }
-
 async function fetchAssignments() {
     const startSearchDate = new Date().toISOString();
     const endSearchDate = new Date();
@@ -42,7 +41,6 @@ async function fetchAssignments() {
         assignmentName: e.title,
         assignmentId: e.itemSourceId,
         assignmentLink: `https://ccccblackboard.blackboard.com/ultra/courses/${e.calendarId}/cl/outline?legacyUrl=~2Fwebapps~2Fcalendar~2Flaunch~2Fattempt~2F_blackboard.platform.gradebook2.GradableItem-${e.itemSourceId}`,
-        assignmnetCategoryId: e.dynamicCalendarItemProps.categoryId,
         dueDate: new Date(e.endDate),
         assignedDate: new Date(e.startDate)
     }));
@@ -62,6 +60,7 @@ async function renderToDoList(assignments) {
 
     let addedTomorrowSpacer = false;
     for(const assignment of assignments) {
+      if(debug) console.log(assignment)
       const className = assignment.class.name.split("_")[0];
       const assName = assignment.assignmentName;
       const linkToClass = assignment.assignmentLink;
@@ -127,9 +126,21 @@ async function renderToDoList(assignments) {
 
           localStorage.completedAssignments = JSON.stringify(completed);
       }
-      document.getElementById('reloadTDL').onclick = ()=>{
-        main();
-      }
+  }
+  document.getElementById('reloadTDL').onclick = ()=>{
+    main();
+  }
+  if(assignments.length==0) {
+    const assignmentBox = document.createElement('div');
+      assignmentBox.classList.add('assignmentBox');
+      assignmentBox.style.outline = '1px solid #cdcdcd';
+      assignmentBox.style.width='98%'
+      assignmentBox.style.margin = '8px';
+      assignmentBox.style.borderRadius = '3px';
+      assignmentBox.style.padding = '3px';
+      assignmentBox.style.background="rgb(250,250,250)";
+    assignmentBox.innerHTML="No assignments due in next 48 hours! 🥳";
+    tdl.appendChild(assignmentBox);
   }
 }
 
@@ -166,6 +177,7 @@ function calculateTimeDifference(startDate, endDate) {
     return hoursDifference >= 8 ? '' : `(${hoursDifference || minutesDifference} ${hoursDifference ? 'hrs' : 'min'})`;
 }
 const badgeCss = 'position:absolute;right:2%;display: inline-block;width:74px;text-align:center;border-radius:5px;padding:2px;font-size:90%;'
+
 async function getAssignmentGrade(classId, assId) {
     let ungraded = `<span style='${badgeCss}background:#d1d1d1;color:#555;'>Incomplete</span>`;
     let submittedText = `<span style='${badgeCss}background:#95deb0;color:black;'>Submitted</span>`;
@@ -174,7 +186,8 @@ async function getAssignmentGrade(classId, assId) {
         const response = await fetch(`https://ccccblackboard.blackboard.com/learn/api/v1/courses/${classId}/gradebook/grades?limit=100&userId=${window.__initialContext.user.id}`);
         const content = await response.json();
         const result = content.results.find(a => a.columnId === assId);
-        return result ? doColorGrade(result.displayGrade.score) : ungraded;
+        console.log(result)
+        return result ? doColorGrade((result.displayGrade.score/result.pointsPossible)*100) : ungraded;
     } catch (e) {
         try{
           const response = await fetch(`https://ccccblackboard.blackboard.com/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${assId}`);
