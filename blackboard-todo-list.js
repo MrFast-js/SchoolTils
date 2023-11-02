@@ -187,6 +187,9 @@ async function getAssignmentGrade(classId, assId) {
         const content = await response.json();
         const result = content.results.find(a => a.columnId === assId);
         console.log(result)
+        if(result.status=="NEEDS_GRADING") {
+            return submittedText;
+        }
         return result ? doColorGrade((result.displayGrade.score/result.pointsPossible)*100) : ungraded;
     } catch (e) {
         try{
