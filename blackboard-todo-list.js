@@ -22,7 +22,7 @@ function createMenu() {
     }
 
     const tdl = document.getElementById('toDoList');
-    tdl.style.cssText = 'position:absolute;left:79%;top:20%;background:white;border-radius:4px;border:1px solid #cdcdcd;width:4%;height:70%;padding: 5px;overflow-y:scroll;overflow-x:hidden;';
+    tdl.style.cssText = 'position:absolute;left:79.5%;top:20%;background:white;border-radius:4px;border:1px solid #cdcdcd;width:3.7%;height:70%;padding: 5px;overflow-y:scroll;overflow-x:hidden;';
 }
 async function fetchAssignments() {
     const startSearchDate = new Date().toISOString();
@@ -61,7 +61,9 @@ async function renderToDoList(assignments) {
     let addedTomorrowSpacer = false;
     for(const assignment of assignments) {
       if(debug) console.log(assignment)
-      const className = assignment.class.name.split("_")[0];
+      var className = ""
+      try{className = assignment.class.name.split("_")[0];} catch(e) {}
+
       const assName = assignment.assignmentName;
       const linkToClass = assignment.assignmentLink;
       let checked = localStorage.completedAssignments.includes(assName)
@@ -78,6 +80,7 @@ async function renderToDoList(assignments) {
           tdl.appendChild(tomorrowSpacer);
           addedTomorrowSpacer = true;
       }
+      if(assName.includes("Office Hours")) continue
 
 
       const assignmentBox = document.createElement('div');
@@ -190,7 +193,13 @@ async function getAssignmentGrade(classId, assId) {
         if(result.status=="NEEDS_GRADING") {
             return submittedText;
         }
-        return result ? doColorGrade((result.displayGrade.score/result.pointsPossible)*100) : ungraded;
+        if(result) {
+            if(result.averageScore) {
+                return doColorGrade((result.averageScore/result.pointsPossible)*100)
+            }
+            return doColorGrade((result.displayGrade.score/result.pointsPossible)*100)
+        }
+        return ungraded;
     } catch (e) {
         try{
           const response = await fetch(`https://ccccblackboard.blackboard.com/webapps/calendar/launch/attempt/_blackboard.platform.gradebook2.GradableItem-${assId}`);
